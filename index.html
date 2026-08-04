@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>College vs. Law School — the actual map</title>
+<style>
+  :root{
+    --ink:#1a1626;
+    --ink-2:#4a4160;
+    --paper:#fbf7f2;
+    --card:#ffffff;
+    --line:#e6ddd2;
+    --plum:#5b3a86;
+    --plum-soft:#f0e9f7;
+    --amber:#c2681c;
+    --amber-soft:#fdefe0;
+    --teal:#1f6f6b;
+    --teal-soft:#e2f1ef;
+    --shadow:0 1px 2px rgba(26,22,38,.05), 0 8px 24px rgba(26,22,38,.06);
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font:16px/1.6 ui-sans-serif,-apple-system,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+    padding:0 0 72px;
+  }
+  .wrap{max-width:660px;margin:0 auto;padding:0 20px}
+
+  /* ---------- hero ---------- */
+  header{padding:52px 0 8px}
+  .kicker{
+    font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--amber);font-weight:700;margin:0 0 14px;
+  }
+  h1{
+    font-size:clamp(30px,7vw,42px);line-height:1.12;margin:0 0 20px;
+    letter-spacing:-.02em;font-weight:800;
+  }
+  .answer{
+    background:var(--card);border:1px solid var(--line);border-left:4px solid var(--plum);
+    border-radius:12px;padding:20px 22px;box-shadow:var(--shadow);margin:0 0 14px;
+  }
+  .answer p{margin:0 0 10px;font-size:17px}
+  .answer p:last-child{margin:0}
+  .answer strong{color:var(--plum)}
+
+  /* ---------- section headings ---------- */
+  h2{
+    font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);
+    font-weight:700;margin:46px 0 16px;display:flex;align-items:center;gap:12px;
+  }
+  h2::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  /* ---------- what college is ---------- */
+  .facts{display:grid;gap:10px}
+  .fact{
+    background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:16px 18px;box-shadow:var(--shadow);
+  }
+  .fact b{display:block;font-size:15px;margin-bottom:4px;color:var(--plum)}
+  .fact span{font-size:15px;color:var(--ink-2)}
+
+  /* ---------- timeline ---------- */
+  .years-toggle{
+    display:inline-flex;align-items:center;gap:9px;cursor:pointer;
+    background:var(--card);border:1px solid var(--line);border-radius:999px;
+    padding:8px 15px;font-size:13px;color:var(--ink-2);font-weight:600;
+    margin:0 0 18px;user-select:none;
+  }
+  .years-toggle:hover{border-color:var(--plum);color:var(--plum)}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--line);transition:background .18s}
+  body.show-years .dot{background:var(--teal)}
+
+  .stage{
+    position:relative;padding-left:44px;padding-bottom:14px;
+  }
+  .stage::before{
+    content:"";position:absolute;left:15px;top:34px;bottom:-6px;width:2px;background:var(--line);
+  }
+  .stage:last-of-type::before{display:none}
+  .marker{
+    position:absolute;left:6px;top:16px;width:20px;height:20px;border-radius:50%;
+    background:var(--card);border:2px solid var(--line);z-index:1;
+  }
+  .stage.now .marker{border-color:var(--amber);background:var(--amber)}
+  .stage.law .marker{border-color:var(--plum)}
+  .stage.done .marker{border-color:var(--teal);background:var(--teal)}
+
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:14px;
+    box-shadow:var(--shadow);overflow:hidden;
+  }
+  .card-head{
+    width:100%;text-align:left;background:none;border:0;cursor:pointer;
+    padding:17px 19px;display:block;font-family:inherit;color:inherit;
+  }
+  .card-head:hover{background:#fdfaf6}
+  .label{
+    font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;
+    color:var(--ink-2);margin-bottom:5px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;
+  }
+  .yr{color:var(--teal);display:none}
+  body.show-years .yr{display:inline}
+  .title{font-size:19px;font-weight:750;letter-spacing:-.01em;margin-bottom:5px}
+  .doing{font-size:15px;color:var(--ink-2);display:flex;gap:8px;align-items:flex-start}
+  .chev{
+    float:right;color:var(--ink-2);font-size:13px;font-weight:700;
+    transition:transform .2s;margin-left:10px;
+  }
+  .card.open .chev{transform:rotate(90deg)}
+
+  .body{display:none;padding:2px 19px 20px;border-top:1px solid var(--line);margin-top:2px}
+  .card.open .body{display:block}
+  .body p{margin:14px 0 0;font-size:15px;color:var(--ink-2)}
+  .body p:first-child{margin-top:14px}
+  .body ul{margin:12px 0 0;padding-left:20px;font-size:15px;color:var(--ink-2)}
+  .body li{margin-bottom:7px}
+  .body .hl{color:var(--ink);font-weight:650}
+
+  .note{
+    background:var(--amber-soft);border-radius:10px;padding:13px 15px;
+    font-size:14.5px;color:#7a4210;margin:16px 0 0;
+  }
+  .note b{color:var(--amber)}
+  .note.plum{background:var(--plum-soft);color:#432a63}
+  .note.plum b{color:var(--plum)}
+
+  /* ---------- myths ---------- */
+  .myth{
+    background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:15px 18px;margin-bottom:10px;box-shadow:var(--shadow);
+  }
+  .myth .m{font-size:15px;color:#9a3d3d;font-weight:650;margin:0 0 6px}
+  .myth .m::before{content:"✕ ";font-weight:800}
+  .myth .t{font-size:15px;color:var(--ink-2);margin:0}
+  .myth .t::before{content:"✓ ";color:var(--teal);font-weight:800}
+
+  /* ---------- right now ---------- */
+  .nowbox{
+    background:linear-gradient(160deg,#2b2140,#4a2f6b);color:#f4eefb;
+    border-radius:16px;padding:26px 24px;box-shadow:var(--shadow);
+  }
+  .nowbox h3{margin:0 0 8px;font-size:21px;letter-spacing:-.01em}
+  .nowbox p{margin:0 0 16px;font-size:15.5px;color:#d6c9ea}
+  .nowbox ol{margin:0;padding-left:20px;font-size:15.5px;color:#f4eefb}
+  .nowbox li{margin-bottom:11px}
+  .nowbox li:last-child{margin-bottom:0}
+  .nowbox b{color:#ffc98a}
+
+  footer{margin-top:44px;font-size:13px;color:#948a9e;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="kicker">The short answer first</p>
+  <h1>College and law school are two different things.</h1>
+  <div class="answer">
+    <p><strong>College comes first.</strong> It's four years, and you can study almost anything you want — art, biology, music, history. Nobody studies law yet.</p>
+    <p><strong>Law school comes after that.</strong> It's three more years, and it's a completely separate school you apply to once college is done. <em>That's</em> where you actually learn law.</p>
+    <p>So: you don't pick between them. You do one, then the other.</p>
+  </div>
+</header>
+
+<h2>Wait — what even is college?</h2>
+<div class="facts">
+  <div class="fact"><b>It's a school you live at.</b><span>Most people move there. You get a dorm room, a roommate, and a cafeteria. Your parents aren't down the hall.</span></div>
+  <div class="fact"><b>You build your own schedule.</b><span>No one hands you a timetable. You pick your classes and what time of day they happen. Some days you have one class. Some days you have four.</span></div>
+  <div class="fact"><b>You pick a "major."</b><span>That's the one subject you go deep on — maybe a third of your classes. The rest you choose freely.</span></div>
+  <div class="fact"><b>There's no homework-for-points.</b><span>Grades come from a few big things: papers, projects, exams. That's a real adjustment — and it's why the reading habit you build in high school matters more than the homework does.</span></div>
+  <div class="fact"><b>It takes about four years.</b><span>Freshman, sophomore, junior, senior — same words as high school, done again.</span></div>
+</div>
+
+<h2>The whole path, start to finish</h2>
+
+<div class="years-toggle" id="toggle" role="button" tabindex="0" aria-pressed="false">
+  <span class="dot"></span><span id="toggle-text">Show me the years</span>
+</div>
+
+<!-- 1 -->
+<div class="stage now">
+  <div class="marker"></div>
+  <div class="card open">
+    <button class="card-head" aria-expanded="true">
+      <span class="chev">›</span>
+      <div class="label">You are here <span class="yr">· 2026–2030</span></div>
+      <div class="title">High school</div>
+      <div class="doing">Figuring out what you're actually into — and getting good at reading hard things.</div>
+    </button>
+    <div class="body">
+      <p>This is the stage where the doors open or quietly close, and almost none of it is about law.</p>
+      <ul>
+        <li><span class="hl">Your grades across all four years</span> become one number colleges look at. Freshman year counts.</li>
+        <li><span class="hl">Take the hardest classes you can handle.</span> Honors, AP, dual enrollment. A B in a hard class beats an A in an easy one, and it's the single best thing you can do this year.</li>
+        <li><span class="hl">Read a lot, on purpose.</span> Every test between here and becoming a lawyer is secretly a reading-speed-and-comprehension test. Manga counts less than novels. Novels count less than arguments you disagree with.</li>
+        <li>Junior year you'll take the <span class="hl">ACT or SAT</span> — one test, taken a few times, that colleges use.</li>
+        <li>Keep doing the thing you're already obsessed with. Depth in one weird area beats being vaguely fine at nine.</li>
+      </ul>
+      <div class="note"><b>Whatever you're already into isn't a detour.</b> Sticking with one hard thing for years — a language, an instrument, a sport, code — is exactly what college applications, law schools, and law firms are all hunting for evidence of. It does not have to look like law to count.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 2 -->
+<div class="stage">
+  <div class="marker"></div>
+  <div class="card">
+    <button class="card-head" aria-expanded="false">
+      <span class="chev">›</span>
+      <div class="label">Next <span class="yr">· 2030–2034 · 4 years</span></div>
+      <div class="title">College</div>
+      <div class="doing">Living somewhere new, running your own life, going deep on a subject you choose.</div>
+    </button>
+    <div class="body">
+      <p>You apply during senior year of high school and pick from wherever says yes.</p>
+      <ul>
+        <li><span class="hl">You do not have to major in anything law-related.</span> This surprises everybody. Future lawyers major in English, philosophy, history, economics, engineering, art — all of it works. Law schools genuinely don't care which one.</li>
+        <li>What they <span class="hl">do</span> care about is your college GPA. It's one of the two numbers that decides where you get in.</li>
+        <li>You'd probably join things — a debate team, a student newspaper, a legal-aid volunteer group — because that's where you find out whether you actually like arguing for a living.</li>
+        <li>Summers become internships. Some of them at actual law offices.</li>
+      </ul>
+      <div class="note plum"><b>Pick a major you'd enjoy even if you never became a lawyer.</b> You'll do better in it, your GPA will be higher, and a higher GPA is what gets you into law school. The "useful-sounding" major is a trap.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 3 -->
+<div class="stage">
+  <div class="marker"></div>
+  <div class="card">
+    <button class="card-head" aria-expanded="false">
+      <span class="chev">›</span>
+      <div class="label">During college <span class="yr">· junior or senior year</span></div>
+      <div class="title">The LSAT</div>
+      <div class="doing">Taking one big test that decides which law schools will take you.</div>
+    </button>
+    <div class="body">
+      <p>It's the law school version of the ACT. Scored 120 to 180.</p>
+      <ul>
+        <li>Here's the strange part: <span class="hl">there is no law on it.</span> None. You haven't studied any law yet, and that's normal.</li>
+        <li>It's a reasoning test — reading dense passages, finding the hole in someone's argument, spotting what a claim quietly assumes.</li>
+        <li>It used to have logic puzzles. Those were removed in 2024. Now it's two logical reasoning sections plus reading comprehension, plus a separate essay you write beforehand.</li>
+        <li>Your <span class="hl">LSAT score and your college GPA</span> are basically the two numbers. Together they decide most of it.</li>
+      </ul>
+      <div class="note"><b>This is the one that's genuinely trainable.</b> People move their scores a lot with real practice. It rewards exactly the skill you'd be building all through high school: reading something hard and not getting fooled by it.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 4 -->
+<div class="stage law">
+  <div class="marker"></div>
+  <div class="card">
+    <button class="card-head" aria-expanded="false">
+      <span class="chev">›</span>
+      <div class="label">Finally, law <span class="yr">· 2034–2037 · 3 years</span></div>
+      <div class="title">Law school</div>
+      <div class="doing">Reading real cases, getting cold-called, and arguing in front of people.</div>
+    </button>
+    <div class="body">
+      <p>Three years. You come out with a degree called a <span class="hl">JD</span>. This is the first time you study law at all.</p>
+      <ul>
+        <li><span class="hl">First year is famously brutal.</span> Contracts, torts, criminal law, constitutional law. Professors call on you without warning and ask you to defend a position in front of the room.</li>
+        <li>You read actual court decisions — real fights between real people — and work out why the judge ruled that way.</li>
+        <li>You do <span class="hl">mock trials and moot court</span>, which is exactly what it sounds like: practice arguing.</li>
+        <li>Second and third year you pick a lane — criminal, immigration, corporate, environmental, international — and start working real cases through legal clinics and summer jobs at firms.</li>
+      </ul>
+      <div class="note plum"><b>This is where "lawyer" stops being one job.</b> A public defender and a corporate lawyer both went here and their days look nothing alike. You don't have to know which one you want until you're standing in it.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 5 -->
+<div class="stage">
+  <div class="marker"></div>
+  <div class="card">
+    <button class="card-head" aria-expanded="false">
+      <span class="chev">›</span>
+      <div class="label">The last gate <span class="yr">· summer after law school</span></div>
+      <div class="title">The bar exam</div>
+      <div class="doing">Studying nonstop for about ten weeks, then taking the test that makes it official.</div>
+    </button>
+    <div class="body">
+      <p>Finishing law school doesn't make you a lawyer. Passing the bar does. It's a license, like a driver's license — and it's per-state.</p>
+      <ul>
+        <li>The exam was just redesigned. The new version launched in <span class="hl">July 2026</span> — digital, about nine hours over a day and a half, and more about doing the job than memorizing everything cold.</li>
+        <li>Most states will have switched to it by 2028, so it's the one you'd take.</li>
+        <li>Results take a couple of months. Then you get sworn in — there's a ceremony — and you're a lawyer.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- 6 -->
+<div class="stage done">
+  <div class="marker"></div>
+  <div class="card">
+    <button class="card-head" aria-expanded="false">
+      <span class="chev">›</span>
+      <div class="label">Done <span class="yr">· around age 24–25</span></div>
+      <div class="title">You're a lawyer</div>
+      <div class="doing">Someone's problem is now officially your problem, and you're the one who knows what to do about it.</div>
+    </button>
+    <div class="body">
+      <p>You can sign your name on legal documents, stand up in a courtroom, and give advice people are allowed to rely on.</p>
+      <p>And you'd get there in your mid-twenties — which is younger than most people assume when they hear "eleven years."</p>
+    </div>
+  </div>
+</div>
+
+<h2>Things people get wrong</h2>
+<div class="myth"><p class="m">You have to major in "pre-law."</p><p class="t">Major in whatever you like most. Law schools accept every major and don't prefer any of them.</p></div>
+<div class="myth"><p class="m">Law school is part of college.</p><p class="t">Separate school, separate application, separate campus sometimes. You finish one, then apply to the other.</p></div>
+<div class="myth"><p class="m">You need to know what kind of lawyer you'll be.</p><p class="t">Most people figure that out in their second year of law school — that's roughly nine years from now.</p></div>
+<div class="myth"><p class="m">Lawyers are in court all day.</p><p class="t">Most lawyers rarely see a courtroom. Most of the job is reading, writing, and explaining things to people who are stressed.</p></div>
+<div class="myth"><p class="m">If you don't start now you've missed it.</p><p class="t">Nothing on this list can be started before college except grades and reading. That's genuinely all there is to do right now.</p></div>
+
+<h2>So what do you actually do this year?</h2>
+<div class="nowbox">
+  <h3>Three things. That's the whole list.</h3>
+  <p>Everything above happens later. Here's the part that's yours right now:</p>
+  <ol>
+    <li><b>Get into the hardest classes they'll let you into.</b> Ask your counselor in the first month — placement gets locked in early, and it sets the ceiling on everything after.</li>
+    <li><b>Read things that are harder than you're comfortable with.</b> Twenty minutes a day. This is the actual skill the LSAT tests in eight years.</li>
+    <li><b>Keep going with the hard thing you already started.</b> Not because it's required — because sticking with something for years is the rarest thing on any application, and the only way to have done it for years is to not stop now.</li>
+  </ol>
+</div>
+
+<footer>
+  Timeline assumes starting 9th grade in fall 2026. Bar exam details reflect the NextGen exam that launched July 2026; LSAT reflects the format since August 2024.
+</footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.card-head').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var card = btn.closest('.card');
+      var open = card.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  });
+
+  var toggle = document.getElementById('toggle');
+  var toggleText = document.getElementById('toggle-text');
+  function flipYears(){
+    var on = document.body.classList.toggle('show-years');
+    toggleText.textContent = on ? 'Hide the years' : 'Show me the years';
+    toggle.setAttribute('aria-pressed', on ? 'true' : 'false');
+  }
+  toggle.addEventListener('click', flipYears);
+  toggle.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); flipYears(); }
+  });
+</script>
+</body>
+</html>
