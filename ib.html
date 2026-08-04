@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>What IB actually is — and what it looks like at Davidson</title>
+<style>
+  :root{
+    --ink:#1a1626; --ink-2:#4a4160; --paper:#fbf7f2; --card:#ffffff; --line:#e6ddd2;
+    --plum:#5b3a86; --plum-soft:#f0e9f7; --amber:#c2681c; --amber-soft:#fdefe0;
+    --teal:#1f6f6b; --teal-soft:#e2f1ef;
+    --shadow:0 1px 2px rgba(26,22,38,.05), 0 8px 24px rgba(26,22,38,.06);
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:16px/1.6 ui-sans-serif,-apple-system,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+    padding:0 0 72px}
+  .wrap{max-width:660px;margin:0 auto;padding:0 20px}
+
+  header{padding:52px 0 8px}
+  .kicker{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);font-weight:700;margin:0 0 14px}
+  h1{font-size:clamp(28px,6.4vw,40px);line-height:1.13;margin:0 0 20px;letter-spacing:-.02em;font-weight:800}
+  .answer{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--plum);
+    border-radius:12px;padding:20px 22px;box-shadow:var(--shadow);margin:0 0 14px}
+  .answer p{margin:0 0 10px;font-size:17px}
+  .answer p:last-child{margin:0}
+  .answer strong{color:var(--plum)}
+
+  h2{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);font-weight:700;
+    margin:46px 0 16px;display:flex;align-items:center;gap:12px}
+  h2::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  .badge{display:inline-block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:800;
+    background:var(--teal-soft);color:var(--teal);border-radius:999px;padding:3px 9px;vertical-align:middle}
+
+  .facts{display:grid;gap:10px}
+  .fact{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;box-shadow:var(--shadow)}
+  .fact b{display:block;font-size:15px;margin-bottom:4px;color:var(--plum)}
+  .fact span{font-size:15px;color:var(--ink-2)}
+
+  .score{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;box-shadow:var(--shadow)}
+  .row{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:15px;color:var(--ink-2)}
+  .row:last-of-type{border-bottom:0}
+  .row b{color:var(--ink);font-weight:700;white-space:nowrap}
+  .row.total{border-top:2px solid var(--line);border-bottom:0;margin-top:6px;padding-top:12px;font-size:16px;color:var(--ink)}
+  .row.total b{color:var(--plum);font-size:19px}
+
+  .stage{position:relative;padding-left:44px;padding-bottom:14px}
+  .stage::before{content:"";position:absolute;left:15px;top:34px;bottom:-6px;width:2px;background:var(--line)}
+  .stage:last-of-type::before{display:none}
+  .marker{position:absolute;left:6px;top:16px;width:20px;height:20px;border-radius:50%;
+    background:var(--card);border:2px solid var(--line);z-index:1}
+  .stage.now .marker{border-color:var(--amber);background:var(--amber)}
+  .stage.dp .marker{border-color:var(--plum);background:var(--plum-soft)}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+  .card-head{width:100%;text-align:left;background:none;border:0;cursor:pointer;padding:17px 19px;display:block;font-family:inherit;color:inherit}
+  .card-head:hover{background:#fdfaf6}
+  .label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--ink-2);margin-bottom:5px}
+  .title{font-size:19px;font-weight:750;letter-spacing:-.01em;margin-bottom:5px}
+  .doing{font-size:15px;color:var(--ink-2)}
+  .chev{float:right;color:var(--ink-2);font-size:13px;font-weight:700;transition:transform .2s;margin-left:10px}
+  .card.open .chev{transform:rotate(90deg)}
+  .body{display:none;padding:2px 19px 20px;border-top:1px solid var(--line);margin-top:2px}
+  .card.open .body{display:block}
+  .body p{margin:14px 0 0;font-size:15px;color:var(--ink-2)}
+  .body ul{margin:12px 0 0;padding-left:20px;font-size:15px;color:var(--ink-2)}
+  .body li{margin-bottom:6px}
+  .body .hl{color:var(--ink);font-weight:650}
+
+  .note{background:var(--amber-soft);border-radius:10px;padding:13px 15px;font-size:14.5px;color:#7a4210;margin:16px 0 0}
+  .note b{color:var(--amber)}
+  .note.plum{background:var(--plum-soft);color:#432a63}
+  .note.plum b{color:var(--plum)}
+  .note.teal{background:var(--teal-soft);color:#12504d}
+  .note.teal b{color:var(--teal)}
+
+  .myth{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px 18px;margin-bottom:10px;box-shadow:var(--shadow)}
+  .myth .m{font-size:15px;color:#9a3d3d;font-weight:650;margin:0 0 6px}
+  .myth .m::before{content:"✕ ";font-weight:800}
+  .myth .t{font-size:15px;color:var(--ink-2);margin:0}
+  .myth .t::before{content:"✓ ";color:var(--teal);font-weight:800}
+
+  .nowbox{background:linear-gradient(160deg,#2b2140,#4a2f6b);color:#f4eefb;border-radius:16px;padding:26px 24px;box-shadow:var(--shadow)}
+  .nowbox h3{margin:0 0 8px;font-size:21px;letter-spacing:-.01em}
+  .nowbox p{margin:0 0 16px;font-size:15.5px;color:#d6c9ea}
+  .nowbox ol{margin:0;padding-left:20px;font-size:15.5px;color:#f4eefb}
+  .nowbox li{margin-bottom:11px}
+  .nowbox li:last-child{margin-bottom:0}
+  .nowbox b{color:#ffc98a}
+
+  .xlink{display:block;background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:16px 18px;box-shadow:var(--shadow);text-decoration:none;color:inherit;margin-top:16px}
+  .xlink:hover{border-color:var(--plum)}
+  .xlink b{display:block;color:var(--plum);font-size:15px;margin-bottom:3px}
+  .xlink span{font-size:14.5px;color:var(--ink-2)}
+
+  footer{margin-top:44px;font-size:13px;color:#948a9e;line-height:1.7}
+  footer a{color:#948a9e}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="kicker">The short answer first</p>
+  <h1>IB is a harder version of high school that ends with a diploma the whole world recognizes.</h1>
+  <div class="answer">
+    <p><strong>IB stands for International Baccalaureate.</strong> It's a program run out of Switzerland that thousands of high schools around the world teach the same way — so an IB diploma from Mobile means the same thing as one from Tokyo or Berlin.</p>
+    <p><strong>Davidson is one of those schools.</strong> The actual IB Diploma is junior and senior year. Before that, 9th and 10th grade are "pre-IB" — regular Davidson classes, but the harder versions, arranged to get you ready.</p>
+    <p>It is not a different school. It's a track inside the school you're already going to.</p>
+  </div>
+</header>
+
+<h2>What makes it different from normal classes</h2>
+<p style="font-size:15px;color:var(--ink-2);margin:-4px 0 16px">Every high school has hard classes. IB adds three things no normal track has — and these three are the whole personality of the program.</p>
+<div class="facts">
+  <div class="fact"><b>TOK — Theory of Knowledge</b><span>An entire class about <em>how you know things are true</em>. Not facts — the question underneath the facts. You spend a year arguing about what counts as evidence, and it's graded.</span></div>
+  <div class="fact"><b>CAS — Creativity, Activity, Service</b><span>You have to actually <em>do</em> things outside class: make something creative, move your body, and volunteer. It's not extra credit. Skip it and you don't get the diploma, no matter your grades.</span></div>
+  <div class="fact"><b>EE — the Extended Essay</b><span>A 4,000-word research paper on a question <em>you</em> pick, written over two years with a teacher advising you. Basically a small college thesis, in high school.</span></div>
+</div>
+<div class="note plum" style="margin-top:12px"><b>Why this matters more than it sounds.</b> AP is a set of separate tests. IB is one connected program that asks you to research, argue, and do — which is why it looks different on a college application even when the class list looks similar.</div>
+
+<h2>How the scoring works</h2>
+<div class="score">
+  <div class="row"><span>6 subjects, each scored 1–7</span><b>up to 42</b></div>
+  <div class="row"><span>TOK + Extended Essay, graded together</span><b>up to 3</b></div>
+  <div class="row total"><span>Perfect score</span><b>45</b></div>
+  <div class="row" style="margin-top:10px"><span>What you need to earn the diploma</span><b>24+</b></div>
+</div>
+<p style="font-size:15px;color:var(--ink-2);margin-top:14px">Of your six subjects, three are <span style="color:var(--ink);font-weight:650">Higher Level</span> (about 240 hours over two years) and three are <span style="color:var(--ink);font-weight:650">Standard Level</span> (about 150 hours). You also have to finish CAS. There's no way to buy your way past it with a high average.</p>
+
+<h2>What it looks like at Davidson <span class="badge">Davidson</span></h2>
+<p style="font-size:15px;color:var(--ink-2);margin:-4px 0 18px">These are the real course lists from Davidson's IB page. Tap a year.</p>
+
+<div class="stage now">
+  <div class="marker"></div>
+  <div class="card open">
+    <button class="card-head" aria-expanded="true"><span class="chev">›</span>
+      <div class="label">Pre-IB</div>
+      <div class="title">9th grade</div>
+      <div class="doing">Same building, same year as everyone else — harder versions of everything.</div>
+    </button>
+    <div class="body">
+      <ul>
+        <li>Pre-IB English 9</li>
+        <li><span class="hl">AP World History</span> — an AP class in 9th grade</li>
+        <li>Geometry Honors</li>
+        <li>Biology Honors</li>
+        <li>Foreign Language 1 &amp; 2 Honors — two levels in one year</li>
+      </ul>
+      <p>Plus the ones every Davidson freshman takes: Career Preparation and Beginning Kinesiology.</p>
+      <div class="note"><b>Notice the math.</b> Geometry in 9th grade means Algebra I has to be done already. If it isn't, that's the first thing to ask a counselor about — it's the piece that decides whether the rest of this lines up.</div>
+    </div>
+  </div>
+</div>
+
+<div class="stage">
+  <div class="marker"></div>
+  <div class="card">
+    <button class="card-head" aria-expanded="false"><span class="chev">›</span>
+      <div class="label">Pre-IB</div>
+      <div class="title">10th grade</div>
+      <div class="doing">Second AP history, and you finish the language sequence.</div>
+    </button>
+    <div class="body">
+      <ul>
+        <li>Pre-IB English 10</li>
+        <li>AP United States History</li>
+        <li>Algebra 2 with Statistics Honors</li>
+        <li>Chemistry (College Prep)</li>
+        <li>Foreign Language 3</li>
+        <li>Health — graduation requirement</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="stage dp">
+  <div class="marker"></div>
+  <div class="card">
+    <button class="card-head" aria-expanded="false"><span class="chev">›</span>
+      <div class="label">The real thing starts</div>
+      <div class="title">11th grade — IB Diploma year 1</div>
+      <div class="doing">Your classes stop being "honors" and start being IB.</div>
+    </button>
+    <div class="body">
+      <ul>
+        <li>IB English A: Literature</li>
+        <li>IB History of the Americas</li>
+        <li>Pre-Calculus Honors</li>
+        <li>IB Biology <span class="hl">or</span> IB Chemistry</li>
+        <li>IB Foreign Language — <span class="hl">German, French, or Spanish</span></li>
+        <li>IB Art — <span class="hl">Music, Dance, or Film</span></li>
+      </ul>
+      <p>This is also when TOK, CAS, and the Extended Essay begin.</p>
+    </div>
+  </div>
+</div>
+
+<div class="stage dp">
+  <div class="marker"></div>
+  <div class="card">
+    <button class="card-head" aria-expanded="false"><span class="chev">›</span>
+      <div class="label">Finish line</div>
+      <div class="title">12th grade — IB Diploma year 2</div>
+      <div class="doing">Finish the essay, finish CAS, sit the exams.</div>
+    </button>
+    <div class="body">
+      <ul>
+        <li>IB English A: Literature</li>
+        <li>IB History of the Americas</li>
+        <li>IB Mathematics: Applications <span class="hl">or</span> Analysis</li>
+        <li>IB Biology <span class="hl">or</span> IB Chemistry</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<h2>How you actually get in <span class="badge">Davidson</span></h2>
+<div class="facts">
+  <div class="fact"><b>There's a January application.</b><span>Davidson's own admissions policy says students in <em>8th or 9th grade</em> apply through a district application in January, to start the IB program in 9th or 10th grade. Decisions go out in March.</span></div>
+  <div class="fact"><b>They screen on three things.</b><span>Your grades from middle school through right now — plus your <em>discipline record</em> and your <em>attendance record</em>. Two of those three are entirely about showing up and not getting in trouble.</span></div>
+  <div class="fact"><b>There's a second door in 11th grade.</b><span>The IB Coordinator meets with interested 10th graders in January, holds a parent info meeting in February, and students sign a Statement of Intent. Generally they look for B or higher in everything — but they say the review is holistic, and students with a record of taking hard classes get in.</span></div>
+  <div class="fact"><b>Who to talk to.</b><span>The IB Coordinator at Davidson is Ashley Cauley. There's also a $250 program fee.</span></div>
+  <div class="fact"><b>If you're zoned somewhere else.</b><span>Mobile County's Signature Academy transfer application closes December 31 and lets you pick up to three schools — but the district does not provide transportation for Signature Academy transfers.</span></div>
+</div>
+
+<div class="note teal" style="margin-top:16px"><b>So — did you miss it?</b> No. If you're starting 9th grade now, the January application is still ahead of you, and the 11th-grade door is ahead of that. There are two on-ramps left, and the thing that determines whether you make it through either one is the grades, attendance, and discipline record you start building on day one.</div>
+
+<h2>Things worth knowing before you decide</h2>
+<div class="myth"><p class="m">You have to choose between IB and AP.</p><p class="t">Not at Davidson. The school says 100% of its IB class of 2024 took three or more AP classes, and all of them were named AP Scholars. Most of them were in the EPIC engineering program too.</p></div>
+<div class="myth"><p class="m">IB is just harder classes.</p><p class="t">The classes are harder, but the real difference is TOK, CAS, and the Extended Essay — a philosophy class, a do-things requirement, and a research paper. That's what you're actually signing up for.</p></div>
+<div class="myth"><p class="m">You can pick any language.</p><p class="t">At Davidson the IB language options are German, French, or Spanish. Worth knowing early if you had a different one in mind — it's a fair question to put to the coordinator.</p></div>
+<div class="myth"><p class="m">The diploma is automatic if your grades are good.</p><p class="t">You need 24+ points, no score of 1, and completed CAS. Skipping the volunteering and the creative hours disqualifies you no matter how well you test.</p></div>
+<div class="myth"><p class="m">Colleges don't care.</p><p class="t">Davidson says IB is recognized by around 3,300 universities in 90 countries. Most US colleges give actual credit for Higher Level exams — though how much varies a lot by school, so it's worth checking specific ones later.</p></div>
+
+<h2>What to do about it this year</h2>
+<div class="nowbox">
+  <h3>Four things, and two of them are free.</h3>
+  <p>The application isn't until January. What it looks at starts now.</p>
+  <ol>
+    <li><b>Show up and stay out of trouble.</b> Attendance and discipline are literally two of the three screening criteria. This is the rare case where the easy thing and the important thing are the same thing.</li>
+    <li><b>Ask a counselor about your math placement</b> in the first month. Geometry in 9th grade is the hinge the whole four-year plan turns on.</li>
+    <li><b>Ask to be put in the hardest classes available now</b>, whether or not you end up applying to IB. Pre-IB is mostly honors and AP anyway, so this is the same move either way.</li>
+    <li><b>Email the IB Coordinator and say you're interested.</b> Being a name they already know in January is worth more than it sounds, and it costs one email.</li>
+  </ol>
+</div>
+
+<a class="xlink" href="./">
+  <b>Still fuzzy on what college is?</b>
+  <span>The other page covers what college actually is and the whole path to becoming a lawyer →</span>
+</a>
+
+<footer>
+  Course lists, admissions timeline, and coordinator name come from Davidson High School's own IB pages and its published 2024 Admissions and Language policies. Scoring and programme structure come from the IB Diploma Programme. Details change year to year — confirm anything decision-shaped with the school.
+</footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.card-head').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var card = btn.closest('.card');
+      var open = card.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  });
+</script>
+</body>
+</html>
